@@ -1,0 +1,35 @@
+name: LME Copper Auto Scraper
+
+# 起動するタイミングの設定
+on:
+  schedule:
+    # 毎日日本時間の朝9時（UTC時間では前日の24:00）に実行
+    - cron: '0 0 * * *'
+  workflow_dispatch: # ボタンを押して手動でいつでも動かせる設定
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: コードをチェックアウト
+      uses: actions/checkout@v3
+
+    - name: Pythonの準備
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 必要な道具（ライブラリ）のインストール
+      run: |
+        pip install requests beautifulsoup4 pandas
+
+    - name: Pythonプログラムの実行
+      run: python scraper.py  # あなたのPythonファイル名に合わせてください
+
+    - name: 新しくできたCSVファイルをGitHubに保存するおまじない
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add lme_copper_1month.csv
+        git commit -m "最新の銅相場データを更新" || exit 0
+        git push
