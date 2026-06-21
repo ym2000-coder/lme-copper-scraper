@@ -25,7 +25,7 @@ jobs:
         pip install requests beautifulsoup4 pandas
 
     - name: Pythonプログラムの実行
-      run: python you.py  # ※アップロードしたPythonファイル名と完全に一致させてください
+      run: python scraper.py  # ※アップロードしたPythonファイル名と完全に一致させてください
 
     - name: 新しくできたCSVファイルをGitHubに保存するおまじない
       run: |
