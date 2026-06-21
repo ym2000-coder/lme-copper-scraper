@@ -1,21 +1,22 @@
 name: LME Copper Auto Scraper
 
-# 起動するタイミングの設定
 on:
   schedule:
     # 毎日日本時間の朝9時（UTC時間では前日の24:00）に実行
     - cron: '0 0 * * *'
-  workflow_dispatch: # ボタンを押して手動でいつでも動かせる設定
+  workflow_dispatch: # 手動実行ボタン
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    # 1. 最新のv4に変更（Node.jsの警告を消すため）
     - name: コードをチェックアウト
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
+    # 2. 最新のv5に変更（Node.jsの警告を消すため）
     - name: Pythonの準備
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
@@ -24,12 +25,18 @@ jobs:
         pip install requests beautifulsoup4 pandas
 
     - name: Pythonプログラムの実行
-      run: python scraper.py  # あなたのPythonファイル名に合わせてください
+      run: python scraper.py  # ※アップロードしたPythonファイル名と完全に一致させてください
 
     - name: 新しくできたCSVファイルをGitHubに保存するおまじない
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add lme_copper_1month.csv
-        git commit -m "最新の銅相場データを更新" || exit 0
-        git push
+        # 念のためファイルが存在することを確認してから追加する設定にしています
+        if [ -f lme_copper_1month.csv ]; then
+          git add lme_copper_1month.csv
+          git commit -m "最新の銅相場データを更新" || exit 0
+          git push
+        else
+          echo "エラー: CSVファイルが生成されていません。"
+          exit 1
+        fi
